@@ -1,7 +1,16 @@
 # GO Helper
 
 A Go library that provides various helper functions for common tasks.
-```
+
+## Installation
+
+```go
+go get github.com/Allan-Nava/go-helper
+````
+
+## Usage 
+
+```go
 import "github.com/Paxx-RnD/go-helper"
 ```
 
