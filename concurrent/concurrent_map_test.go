@@ -3,8 +3,7 @@ package concurrent
 import "testing"
 
 func Test_ConcurrentDictionary(t *testing.T) {
-	dict := Dictionary[int, string]{}
-	dict.Init()
+	dict := NewDictionary[int, string]()
 
 	count := 5000
 	for i := 0; i < count; i++ {

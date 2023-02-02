@@ -8,6 +8,12 @@ type Dictionary[TK comparable, T any] struct {
 	data map[TK]T
 }
 
+func NewDictionary[TK comparable, T any]() *Dictionary[TK, T] {
+	dictionary := Dictionary[TK, T]{}
+	dictionary.Init()
+	return &dictionary
+}
+
 func (d *Dictionary[TK, T]) Init() {
 	d.data = make(map[TK]T)
 }
