@@ -34,3 +34,12 @@ func TestMapChangeType(t *testing.T) {
 		t.Errorf("Map(%v) = %v, expected %v", input, output, expectedOutput)
 	}
 }
+
+func TestDistinct(t *testing.T) {
+	input := []string{"foo", "ciao", "world", "world", "world", "lol", "ciao"}
+	expectedOutput := []string{"foo", "ciao", "world", "lol"}
+	output := Distinct[string](input)
+	if !reflect.DeepEqual(output, expectedOutput) {
+		t.Errorf("Distinct(%v) = %v, expected %v", input, output, expectedOutput)
+	}
+}
