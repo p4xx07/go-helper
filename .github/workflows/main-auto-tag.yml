@@ -13,7 +13,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
       
-      - uses: Paxx-RnD/incrementarl-create-release@latest
+      - uses: Paxx-RnD/incrementarl-create-release@v1.0.0
         with:
           flag_branch: true
           message: Bump version
