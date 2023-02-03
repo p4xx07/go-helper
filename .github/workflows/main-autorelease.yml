@@ -1,11 +1,8 @@
+name: Main Auto Release
 on:
   push:
     branches:
       - main
-
-env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
 
 jobs:
   tagged-release:
@@ -15,27 +12,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
-      - name: Get current version tag
-        run: |
-          latestTag=$(git describe --tags $(git rev-list --tags --max-count=1))
-          echo "Latest tag: $latestTag"
-
-      - name: Increment version tag
-        run: |
-          # Extract current version
-          IFS='.' read -r -a versionArray <<< "$latestTag"
-          
-          # Increment patch version
-          versionArray[2]=$((versionArray[2]+1))
-          
-          # Create new version string
-          newVersion="${versionArray[0]}.${versionArray[1]}.${versionArray[2]}"
-          echo "New version: $newVersion"
-
-      - name: Create version tag
-        run: |
-          git config --global user.email "action@github.com"
-          git config --global user.name "GitHub Action"
-          git tag $newVersion
-          git push origin $newVersion
+      
+      - uses: aurestic/incrementarl-create-release@master
+        with:
+          flag_branch: true
+          message: Bump version
+          prev_tag: 'v'
+          update_odoo_module_version: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
