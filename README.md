@@ -36,7 +36,7 @@ func main() {
 ```
 
 ## API documentation
-You can use go doc command to know more about the specific functions and structs.
+You can use go doc command to know more about the specific functions and structs
 You can use the command go doc <package_name> and go doc <package_name> <function_name> to know more about the package and function respectively.
 
 ## Contributing
