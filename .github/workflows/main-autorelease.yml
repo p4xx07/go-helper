@@ -1,0 +1,41 @@
+on:
+  push:
+    branches:
+      - main
+
+env:
+  APP_ENV: runner
+
+jobs:
+  tagged-release:
+    name: "Main Auto Release"
+    runs-on: "ubuntu-latest"
+    permissions: write-all
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Get current version tag
+        run: |
+          latestTag=$(git describe --tags $(git rev-list --tags --max-count=1))
+          echo "Latest tag: $latestTag"
+
+      - name: Increment version tag
+        run: |
+          # Extract current version
+          IFS='.' read -r -a versionArray <<< "$latestTag"
+          
+          # Increment patch version
+          versionArray[2]=$((versionArray[2]+1))
+          
+          # Create new version string
+          newVersion="${versionArray[0]}.${versionArray[1]}.${versionArray[2]}"
+          echo "New version: $newVersion"
+
+      - name: Create version tag
+        run: |
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
+          git tag $newVersion
+          git push origin $newVersion
