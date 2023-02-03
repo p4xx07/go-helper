@@ -1,4 +1,4 @@
-name: Main Auto Release
+name: Main Auto Tag
 on:
   push:
     branches:
@@ -6,14 +6,14 @@ on:
 
 jobs:
   tagged-release:
-    name: "Main Auto Release"
+    name: "Main Auto Tag"
     runs-on: "ubuntu-latest"
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
       
-      - uses: aurestic/incrementarl-create-release@master
+      - uses: Paxx-RnD/incrementarl-create-release@master
         with:
           flag_branch: true
           message: Bump version

@@ -15,6 +15,7 @@ func Test_MapKeys(t *testing.T) {
 
 	expectedOutput := []int{1, 2, 3}
 	output := Keys[int, string](input)
+	sort.Ints(output)
 	if !reflect.DeepEqual(output, expectedOutput) {
 		t.Errorf("Keys(%v) = %v, expected %v", input, output, expectedOutput)
 	}
