@@ -4,13 +4,13 @@ on:
       - main
 
 env:
-  APP_ENV: runner
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
 jobs:
   tagged-release:
     name: "Main Auto Release"
     runs-on: "ubuntu-latest"
-    permissions: write-all
 
     steps:
       - name: Checkout code
