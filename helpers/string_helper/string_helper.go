@@ -1,6 +1,11 @@
 package string_helper
 
+import "strings"
+
 func Truncate(text string, length int) string {
 	const dots string = "..."
-	return text[:length-len(dots)] + dots
+	if len(text) < length {
+		return strings.TrimSpace(text)
+	}
+	return strings.TrimSpace(text[:length]) + dots
 }
