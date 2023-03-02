@@ -14,16 +14,16 @@ func Abs(a int) int {
 	return int(math.Abs(float64(a)))
 }
 
-func Ceil(a float64) int {
-	return int(math.Ceil(a))
+func Ceil(a int) int {
+	return int(math.Ceil(float64(a)))
 }
 
-func Floor(a float64) int {
-	return int(math.Floor(a))
+func Floor(a int) int {
+	return int(math.Floor(float64(a)))
 }
 
-func Round(a float64) int {
-	return int(math.Round(a))
+func Round(a int) int {
+	return int(math.Round(float64(a)))
 }
 
 func Pow(a, b int) int {
