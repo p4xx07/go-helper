@@ -13,6 +13,7 @@ type IService interface {
 	PreSignedGetObject(input string, credentials Credentials) (u *url.URL, err error)
 	GetS3Client(credentials Credentials) (*miniogo.Client, error)
 	PutObject(file *os.File, destination string, credentials Credentials) error
+	Exists(key string, credentials Credentials) (bool, error)
 }
 
 type service struct {
@@ -121,4 +122,18 @@ func (s *service) PutObject(file *os.File, destination string, credentials Crede
 	}
 
 	return nil
+}
+
+func (s *service) Exists(key string, credentials Credentials) (bool, error) {
+	client, err := s.GetS3Client(credentials)
+	if err != nil {
+		return false, err
+	}
+
+	url, err := client.PresignedHeadObject(credentials.Bucket, key, time.Minute, nil)
+	if err != nil || url == nil {
+		return false, err
+	}
+
+	return true, nil
 }
