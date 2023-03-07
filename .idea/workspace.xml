@@ -4,14 +4,9 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="95933a9e-30d9-40a0-baf9-2b2fbeeaeb6a" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/minio/models.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/minio/service.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/git_toolbox_prj.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
+    <list default="true" id="95933a9e-30d9-40a0-baf9-2b2fbeeaeb6a" name="Changes" comment="release: now has minio client wrapper with concurrent dicitonary">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/minio/service.go" beforeDir="false" afterPath="$PROJECT_DIR$/services/minio/service.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -77,6 +72,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+    <MESSAGE value="release: now has minio client wrapper with concurrent dicitonary" />
+    <option name="LAST_COMMIT_MESSAGE" value="release: now has minio client wrapper with concurrent dicitonary" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
