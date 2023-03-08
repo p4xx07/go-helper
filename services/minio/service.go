@@ -14,6 +14,7 @@ type IService interface {
 	GetS3Client(credentials Credentials) (*miniogo.Client, error)
 	PutObject(file *os.File, destination string, credentials Credentials) error
 	Exists(key string, credentials Credentials) (bool, error)
+	DeleteObject(path string, credentials Credentials) error
 }
 
 type service struct {
@@ -136,4 +137,18 @@ func (s *service) Exists(key string, credentials Credentials) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func (s *service) DeleteObject(path string, credentials Credentials) error {
+	s3Client, err := s.GetS3Client(credentials)
+	if err != nil {
+		return err
+	}
+
+	err = s3Client.RemoveObject(credentials.Bucket, path)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
