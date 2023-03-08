@@ -88,7 +88,8 @@ func (s *service) GetS3Client(credential Credential) (*miniogo.Client, error) {
 
 	if s3Client, ok = s.clientMap.Get(credential.Host); !ok {
 		newClient, err := miniogo.New(url.Hostname(), &miniogo.Options{
-			Creds: credentials.NewStaticV4(credential.AccessKey, credential.SecretKey, ""),
+			Creds:  credentials.NewStaticV4(credential.AccessKey, credential.SecretKey, ""),
+			Secure: true,
 		})
 		if err != nil {
 			return nil, err
