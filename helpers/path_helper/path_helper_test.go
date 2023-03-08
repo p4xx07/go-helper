@@ -16,8 +16,8 @@ func TestPathWithoutExt(t *testing.T) {
 
 func TestBasePathWithoutExt(t *testing.T) {
 	long := "path/without/ext"
-	expected := "ext"
 	ext := ".mp4"
+	expected := "ext"
 
 	value := BasePathWithoutExt(long + ext)
 	if value != expected {
