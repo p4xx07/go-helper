@@ -133,6 +133,9 @@ func (s *service) Exists(key string, credentials Credentials) (bool, error) {
 
 	_, err = client.StatObject(credentials.Bucket, key, miniogo.StatObjectOptions{})
 	if err != nil {
+		if miniogo.ToErrorResponse(err).Code == "NoSuchKey" {
+			return false, nil
+		}
 		return false, err
 	}
 
