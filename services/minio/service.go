@@ -131,8 +131,8 @@ func (s *service) Exists(key string, credentials Credentials) (bool, error) {
 		return false, err
 	}
 
-	url, err := client.PresignedHeadObject(credentials.Bucket, key, time.Minute, nil)
-	if err != nil || url == nil {
+	_, err = client.StatObject(credentials.Bucket, key, miniogo.StatObjectOptions{})
+	if err != nil {
 		return false, err
 	}
 
