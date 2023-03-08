@@ -1,20 +1,22 @@
 package minio
 
 import (
+	"context"
 	"errors"
 	"github.com/Paxx-RnD/go-helper/concurrent"
-	miniogo "github.com/minio/minio-go"
+	miniogo "github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
 	"net/url"
 	"os"
 	"time"
 )
 
 type IService interface {
-	PreSignedGetObject(input string, credentials Credentials) (u *url.URL, err error)
-	GetS3Client(credentials Credentials) (*miniogo.Client, error)
-	PutObject(file *os.File, destination string, credentials Credentials) error
-	Exists(key string, credentials Credentials) (bool, error)
-	DeleteObject(path string, credentials Credentials) error
+	PreSignedGetObject(input string, credentials Credential) (u *url.URL, err error)
+	GetS3Client(credentials Credential) (*miniogo.Client, error)
+	PutObject(file *os.File, destination string, credentials Credential) error
+	Exists(key string, credentials Credential) (bool, error)
+	DeleteObject(path string, credentials Credential) error
 }
 
 type service struct {
@@ -52,7 +54,7 @@ func (s *service) initClientS3GarbageCollector() {
 	}()
 }
 
-func (s *service) PreSignedGetObject(input string, credentials Credentials) (u *url.URL, err error) {
+func (s *service) PreSignedGetObject(input string, credentials Credential) (u *url.URL, err error) {
 	if value, ok := s.preSignedUrls.Get(input); ok {
 		return value, nil
 	}
@@ -62,7 +64,7 @@ func (s *service) PreSignedGetObject(input string, credentials Credentials) (u *
 		return nil, err
 	}
 
-	preSignedUrl, err := s3Client.PresignedGetObject(credentials.Bucket, input, time.Minute, nil)
+	preSignedUrl, err := s3Client.PresignedGetObject(context.Background(), credentials.Bucket, input, time.Minute, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -76,21 +78,23 @@ func (s *service) PreSignedGetObject(input string, credentials Credentials) (u *
 	return preSignedUrl, nil
 }
 
-func (s *service) GetS3Client(credentials Credentials) (*miniogo.Client, error) {
+func (s *service) GetS3Client(credential Credential) (*miniogo.Client, error) {
 	var s3Client clientWrapper
 	var ok bool
-	url, err := url.Parse(credentials.Host)
+	url, err := url.Parse(credential.Host)
 	if err != nil {
 		return nil, err
 	}
 
-	if s3Client, ok = s.clientMap.Get(credentials.Host); !ok {
-		newClient, err := miniogo.New(url.Hostname(), credentials.AccessKey, credentials.SecretKey, false)
+	if s3Client, ok = s.clientMap.Get(credential.Host); !ok {
+		newClient, err := miniogo.New(url.Hostname(), &miniogo.Options{
+			Creds: credentials.NewStaticV4(credential.AccessKey, credential.SecretKey, ""),
+		})
 		if err != nil {
 			return nil, err
 		}
 		s3Client = clientWrapper{minioClient: newClient, lastUse: time.Now()}
-		s.clientMap.Set(credentials.Host, s3Client)
+		s.clientMap.Set(credential.Host, s3Client)
 	} else {
 		s3Client.lastUse = time.Now()
 	}
@@ -98,7 +102,7 @@ func (s *service) GetS3Client(credentials Credentials) (*miniogo.Client, error) 
 	return s3Client.minioClient, nil
 }
 
-func (s *service) PutObject(file *os.File, destination string, credentials Credentials) error {
+func (s *service) PutObject(file *os.File, destination string, credentials Credential) error {
 	if file == nil {
 		return errors.New("file is nil")
 	}
@@ -112,6 +116,7 @@ func (s *service) PutObject(file *os.File, destination string, credentials Crede
 	}
 
 	_, err = client.PutObject(
+		context.Background(),
 		credentials.Bucket,
 		destination,
 		file,
@@ -125,13 +130,13 @@ func (s *service) PutObject(file *os.File, destination string, credentials Crede
 	return nil
 }
 
-func (s *service) Exists(key string, credentials Credentials) (bool, error) {
+func (s *service) Exists(key string, credentials Credential) (bool, error) {
 	client, err := s.GetS3Client(credentials)
 	if err != nil {
 		return false, err
 	}
 
-	_, err = client.StatObject(credentials.Bucket, key, miniogo.StatObjectOptions{})
+	_, err = client.StatObject(context.Background(), credentials.Bucket, key, miniogo.StatObjectOptions{})
 	if err != nil {
 		if miniogo.ToErrorResponse(err).Code == "NoSuchKey" {
 			return false, nil
@@ -142,13 +147,13 @@ func (s *service) Exists(key string, credentials Credentials) (bool, error) {
 	return true, nil
 }
 
-func (s *service) DeleteObject(path string, credentials Credentials) error {
+func (s *service) DeleteObject(path string, credentials Credential) error {
 	s3Client, err := s.GetS3Client(credentials)
 	if err != nil {
 		return err
 	}
 
-	err = s3Client.RemoveObject(credentials.Bucket, path)
+	err = s3Client.RemoveObject(context.Background(), credentials.Bucket, path, miniogo.RemoveObjectOptions{})
 	if err != nil {
 		return err
 	}
