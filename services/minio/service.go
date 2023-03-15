@@ -1,6 +1,7 @@
 package minio
 
 import (
+	"bytes"
 	"errors"
 	"github.com/Paxx-RnD/go-helper/concurrent"
 	miniogo "github.com/minio/minio-go"
@@ -15,6 +16,7 @@ type IService interface {
 	PutObject(file *os.File, destination string, credentials Credentials) error
 	Exists(key string, credentials Credentials) (bool, error)
 	DeleteObject(path string, credentials Credentials) error
+	GetObject(path string, credentials Credentials) ([]byte, error)
 }
 
 type service struct {
@@ -154,4 +156,28 @@ func (s *service) DeleteObject(path string, credentials Credentials) error {
 	}
 
 	return nil
+}
+
+func (s *service) GetObject(path string, credentials Credentials) ([]byte, error) {
+	s3Client, err := s.GetS3Client(credentials)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := s3Client.GetObject(credentials.Bucket, path, miniogo.GetObjectOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	defer res.Close()
+
+	var fileContents []byte
+	buf := new(bytes.Buffer)
+	_, err = buf.ReadFrom(res)
+	if err != nil {
+		return nil, err
+	}
+	fileContents = buf.Bytes()
+
+	return fileContents, nil
 }
