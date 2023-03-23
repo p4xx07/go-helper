@@ -23,3 +23,24 @@ func TestAsTypeJsonShouldNotFail(t *testing.T) {
 		t.Errorf("convertion failed")
 	}
 }
+
+func TestGetOrDefault(t *testing.T) {
+	v := "hello"
+	a := GetOrDefault[*string](nil, &v)
+
+	if *a != "hello" {
+		panic("failed")
+	}
+
+	v2 := "hello2"
+	a = GetOrDefault[*string](&v, &v2)
+
+	if *a != "hello" {
+		panic("failed")
+	}
+
+	b := GetOrDefault("", "hello")
+	if b != "hello" {
+		panic("failed")
+	}
+}

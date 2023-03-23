@@ -23,3 +23,10 @@ func AsType[T any](data any) (T, error) {
 	}
 	return result, nil
 }
+
+func GetOrDefault[T comparable](value T, defaultValue T) T {
+	if value != *new(T) {
+		return value
+	}
+	return defaultValue
+}
