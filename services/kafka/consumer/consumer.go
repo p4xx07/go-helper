@@ -31,7 +31,7 @@ func prepareConfig(configParams []sarama.Config, offset int64) *sarama.Config {
 }
 
 func getDefaultConfig(offset int64) *sarama.Config {
-	var config *sarama.Config
+	config := sarama.NewConfig()
 	config.Consumer.Return.Errors = true
 	config.Consumer.Offsets.Initial = offset
 	return config
