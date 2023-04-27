@@ -29,6 +29,7 @@ func NewService(cluster []string, options Options) (IService, error) {
 
 	return &service{
 		etcdClient: c,
+		options:    options,
 	}, nil
 }
 
