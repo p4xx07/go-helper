@@ -9,7 +9,7 @@ import (
 
 type IService interface {
 	Lock(id string) (*clientv3.LeaseGrantResponse, error)
-	LockAndRefresh(id string, done <-chan bool) error
+	LockAndRefresh(id string, done <-chan bool) (bool, error)
 	ContainsKey(id string) (bool, error)
 }
 
@@ -57,15 +57,15 @@ func (s *service) Lock(key string) (*clientv3.LeaseGrantResponse, error) {
 	return lease, nil
 }
 
-func (s *service) LockAndRefresh(key string, done <-chan bool) error {
+func (s *service) LockAndRefresh(key string, done <-chan bool) (bool, error) {
 	lease, err := s.Lock(key)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	go s.refresh(lease, done)
 
-	return nil
+	return true, nil
 }
 
 func (s *service) refresh(lease *clientv3.LeaseGrantResponse, done <-chan bool) {
