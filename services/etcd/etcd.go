@@ -24,7 +24,7 @@ func NewService(cluster []string, options Options) (IService, error) {
 	})
 
 	if err != nil {
-		return nil, fmt.Errorf("error initializing the etcd client %s: %v", err)
+		return nil, fmt.Errorf("error initializing the etcd client: %v", err)
 	}
 
 	return &service{
