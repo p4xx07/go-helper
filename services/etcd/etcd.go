@@ -8,7 +8,8 @@ import (
 )
 
 type IService interface {
-	IsLocked(id string, done <-chan bool) (bool, error)
+	Lock(id string) (*clientv3.LeaseGrantResponse, error)
+	LockAndRefresh(id string, done <-chan bool) error
 	ContainsKey(id string) (bool, error)
 }
 
@@ -33,12 +34,12 @@ func NewService(cluster []string, options Options) (IService, error) {
 	}, nil
 }
 
-func (s *service) IsLocked(key string, done <-chan bool) (bool, error) {
+func (s *service) Lock(key string) (*clientv3.LeaseGrantResponse, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(s.options.RefreshInterval)*time.Second)
 	defer c(cancel)
 	lease, err := s.etcdClient.Lease.Grant(ctx, s.options.Ttl)
 	if err != nil {
-		return false, fmt.Errorf("issue while granting a lease: %v", err)
+		return nil, fmt.Errorf("issue while granting a lease: %v", err)
 	}
 
 	resp, err := s.etcdClient.Txn(ctx).
@@ -47,15 +48,24 @@ func (s *service) IsLocked(key string, done <-chan bool) (bool, error) {
 		Commit()
 
 	if err != nil {
-		return false, fmt.Errorf("failed to set key: %v", err)
+		return nil, fmt.Errorf("failed to set key: %v", err)
 	}
 	if !resp.Succeeded {
-		return false, fmt.Errorf("key already exists, exiting")
+		return nil, fmt.Errorf("key already exists, exiting")
+	}
+
+	return lease, nil
+}
+
+func (s *service) LockAndRefresh(key string, done <-chan bool) error {
+	lease, err := s.Lock(key)
+	if err != nil {
+		return err
 	}
 
 	go s.refresh(lease, done)
 
-	return false, nil
+	return nil
 }
 
 func (s *service) refresh(lease *clientv3.LeaseGrantResponse, done <-chan bool) {
