@@ -64,7 +64,7 @@ func (s *service) PreSignedGetObject(input string, credentials Credentials) (u *
 		return nil, err
 	}
 
-	preSignedUrl, err := s3Client.PresignedGetObject(credentials.Bucket, input, time.Minute, nil)
+	preSignedUrl, err := s3Client.PresignedGetObject(credentials.Bucket, input, time.Hour, nil)
 	if err != nil {
 		return nil, err
 	}
