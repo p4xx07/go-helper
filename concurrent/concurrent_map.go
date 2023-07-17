@@ -87,3 +87,9 @@ func (d *Dictionary[TK, T]) IsEmpty() bool {
 	defer d.mutex.RUnlock()
 	return len(d.data) == 0
 }
+
+func (d *Dictionary[TK, T]) Replace(newData map[TK]T) {
+	d.mutex.Lock()
+	defer d.mutex.Unlock()
+	d.data = newData
+}
