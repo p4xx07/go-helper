@@ -13,7 +13,7 @@ import (
 type IService interface {
 	PreSignedGetObject(input string, credentials Credentials) (u *url.URL, err error)
 	GetS3Client(credentials Credentials) (*miniogo.Client, error)
-	PutObject(file *os.File, destination string, credentials Credentials) error
+	PutObject(file *os.File, destination string, credentials Credentials, userMetadata map[string]string) error
 	Exists(key string, credentials Credentials) (bool, error)
 	DeleteObject(path string, credentials Credentials) error
 	GetObject(path string, credentials Credentials) ([]byte, error)
@@ -100,7 +100,7 @@ func (s *service) GetS3Client(credentials Credentials) (*miniogo.Client, error) 
 	return s3Client.minioClient, nil
 }
 
-func (s *service) PutObject(file *os.File, destination string, credentials Credentials) error {
+func (s *service) PutObject(file *os.File, destination string, credentials Credentials, userMetadata map[string]string) error {
 	if file == nil {
 		return errors.New("file is nil")
 	}
@@ -118,7 +118,7 @@ func (s *service) PutObject(file *os.File, destination string, credentials Crede
 		destination,
 		file,
 		fileStat.Size(),
-		miniogo.PutObjectOptions{ContentType: "application/octet-stream"})
+		miniogo.PutObjectOptions{ContentType: "application/octet-stream", UserMetadata: userMetadata})
 
 	if err != nil {
 		return err
