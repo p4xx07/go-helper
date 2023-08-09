@@ -16,6 +16,13 @@ func ConvertFromString[T any](in string) (*T, error) {
 	case reflect.String:
 		e.SetString(in)
 		return &out, nil
+	case reflect.Bool:
+		b, err := strconv.ParseBool(in)
+		if err != nil {
+			return nil, err
+		}
+		e.SetBool(b)
+		return &out, nil
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		o, err := strconv.ParseInt(in, 10, 64)
 		if err != nil {
