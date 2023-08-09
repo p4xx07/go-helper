@@ -7,47 +7,43 @@ import (
 
 func Test_String_To_String(t *testing.T) {
 
-	var out string
-	err := ConvertFromString[string]("string", &out)
+	out, err := ConvertFromString[string]("string")
 
 	if err != nil {
 		panic(err)
 	}
 
-	if out != "string" {
+	if *out != "string" {
 		panic("different")
 	}
 }
 
 func TestConvertStringToInt(t *testing.T) {
-	var out int
-	err := ConvertFromString[int]("42", &out)
+	out, err := ConvertFromString[int]("42")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if out != 42 {
+	if *out != 42 {
 		t.Fatal("Expected: 42, Got:", out)
 	}
 }
 
 func TestConvertStringToUint(t *testing.T) {
-	var out uint
-	err := ConvertFromString[uint]("42", &out)
+	out, err := ConvertFromString[uint]("42")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if out != 42 {
+	if *out != 42 {
 		t.Fatal("Expected: 42, Got:", out)
 	}
 }
 
 func TestConvertStringToFloat(t *testing.T) {
-	var out float32
-	err := ConvertFromString[float32]("3.14", &out)
+	out, err := ConvertFromString[float32]("3.14")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if out != 3.14 {
+	if *out != 3.14 {
 		t.Fatal("Expected: 3.14, Got:", out)
 	}
 }
@@ -61,8 +57,7 @@ func TestConvertStringToTime(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		var out time.Time
-		err := ConvertFromString[time.Time](test.input, &out)
+		out, err := ConvertFromString[time.Time](test.input)
 		if err != nil {
 			t.Fatalf("Error converting %s: %v", test.input, err)
 		}
@@ -74,8 +69,10 @@ func TestConvertStringToTime(t *testing.T) {
 }
 
 func TestConvertStringToUnsupportedType(t *testing.T) {
-	var out complex128
-	err := ConvertFromString[complex128]("invalid", &out)
+	out, err := ConvertFromString[complex128]("invalid")
+	if out != nil {
+		t.Fatal("should be nil")
+	}
 	if err == nil {
 		t.Fatal("Expected error for unsupported type, but got nil")
 	}
