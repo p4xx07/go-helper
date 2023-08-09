@@ -29,12 +29,12 @@ func TestConvertStringToInt(t *testing.T) {
 }
 
 func TestConvertStringToBool(t *testing.T) {
-	out, err := ConvertFromString[bool]("false")
+	out, err := ConvertFromString[bool]("true")
 	if err != nil {
 		t.Fatal(err)
 	}
 	if *out != false {
-		t.Fatal("Expected: false, Got:", out)
+		t.Fatal("Expected: true, Got:", out)
 	}
 }
 
