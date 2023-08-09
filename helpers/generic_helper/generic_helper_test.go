@@ -28,6 +28,16 @@ func TestConvertStringToInt(t *testing.T) {
 	}
 }
 
+func TestConvertStringToBool(t *testing.T) {
+	out, err := ConvertFromString[bool]("false")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if *out != false {
+		t.Fatal("Expected: false, Got:", out)
+	}
+}
+
 func TestConvertStringToUint(t *testing.T) {
 	out, err := ConvertFromString[uint]("42")
 	if err != nil {
