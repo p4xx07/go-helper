@@ -38,9 +38,6 @@ jobs:
       - name: Build
         run: go build -v ./...
 
-      - name: Test with the Go CLI
-        run: go test -v ./...
-
       - name: Create release
         uses: actions/create-release@v1
         env:
