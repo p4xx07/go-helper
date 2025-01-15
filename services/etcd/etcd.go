@@ -15,10 +15,9 @@ type IService interface {
 
 type service struct {
 	etcdClient *clientv3.Client
-	options    Options
 }
 
-func NewService(cluster []string, options Options) (IService, error) {
+func NewService(cluster []string) (IService, error) {
 	c, err := clientv3.New(clientv3.Config{
 		Endpoints:   cluster,
 		DialTimeout: 5 * time.Second,
@@ -30,14 +29,13 @@ func NewService(cluster []string, options Options) (IService, error) {
 
 	return &service{
 		etcdClient: c,
-		options:    options,
 	}, nil
 }
 
 func (s *service) Lock(key string, refreshDuration time.Duration) (*clientv3.LeaseGrantResponse, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), refreshDuration)
 	defer c(cancel)
-	lease, err := s.etcdClient.Lease.Grant(ctx, s.options.Ttl)
+	lease, err := s.etcdClient.Lease.Grant(ctx, int64(refreshDuration.Seconds()))
 	if err != nil {
 		return nil, fmt.Errorf("issue while granting a lease: %v", err)
 	}
