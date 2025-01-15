@@ -8,7 +8,7 @@ import (
 )
 
 type IService interface {
-	Lock(id string) (*clientv3.LeaseGrantResponse, error)
+	Lock(id string, refreshInterval time.Duration) (*clientv3.LeaseGrantResponse, error)
 	LockAndRefresh(ctx context.Context, id string, refreshInterval time.Duration, done <-chan bool) error
 	ContainsKey(id string) (bool, error)
 }
@@ -34,8 +34,8 @@ func NewService(cluster []string, options Options) (IService, error) {
 	}, nil
 }
 
-func (s *service) Lock(key string) (*clientv3.LeaseGrantResponse, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(s.options.RefreshInterval)*time.Second)
+func (s *service) Lock(key string, refreshDuration time.Duration) (*clientv3.LeaseGrantResponse, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), refreshDuration)
 	defer c(cancel)
 	lease, err := s.etcdClient.Lease.Grant(ctx, s.options.Ttl)
 	if err != nil {
@@ -58,7 +58,7 @@ func (s *service) Lock(key string) (*clientv3.LeaseGrantResponse, error) {
 }
 
 func (s *service) LockAndRefresh(ctx context.Context, key string, duration time.Duration, done <-chan bool) error {
-	lease, err := s.Lock(key)
+	lease, err := s.Lock(key, duration)
 	if err != nil {
 		return err
 	}
@@ -90,9 +90,7 @@ func (s *service) refresh(ctx context.Context, lease *clientv3.LeaseGrantRespons
 }
 
 func (s *service) ContainsKey(key string) (bool, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(s.options.RefreshInterval)*time.Second)
-	defer c(cancel)
-	resp, err := s.etcdClient.Get(ctx, key)
+	resp, err := s.etcdClient.Get(context.Background(), key)
 	if err != nil {
 		return false, fmt.Errorf("issue while getting key %v", err)
 	}
