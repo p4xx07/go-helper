@@ -9,7 +9,7 @@ import (
 
 type IService interface {
 	Lock(id string) (*clientv3.LeaseGrantResponse, error)
-	LockAndRefresh(id string, done <-chan bool) error
+	LockAndRefresh(ctx context.Context, id string, refreshInterval time.Duration, done <-chan bool) error
 	ContainsKey(id string) (bool, error)
 }
 
@@ -57,21 +57,20 @@ func (s *service) Lock(key string) (*clientv3.LeaseGrantResponse, error) {
 	return lease, nil
 }
 
-func (s *service) LockAndRefresh(key string, done <-chan bool) error {
+func (s *service) LockAndRefresh(ctx context.Context, key string, duration time.Duration, done <-chan bool) error {
 	lease, err := s.Lock(key)
 	if err != nil {
 		return err
 	}
 
-	go s.refresh(lease, done)
+	go s.refresh(ctx, lease, duration, done)
 
 	return nil
 }
 
-func (s *service) refresh(lease *clientv3.LeaseGrantResponse, done <-chan bool) {
-	ticker := time.NewTicker(time.Duration(s.options.RefreshInterval) * time.Second)
+func (s *service) refresh(ctx context.Context, lease *clientv3.LeaseGrantResponse, duration time.Duration, done <-chan bool) {
+	ticker := time.NewTicker(duration)
 	var (
-		ctx    context.Context
 		cancel context.CancelFunc
 	)
 	for {
@@ -80,7 +79,7 @@ func (s *service) refresh(lease *clientv3.LeaseGrantResponse, done <-chan bool) 
 			c(cancel)
 			return
 		case <-ticker.C:
-			ctx, cancel = context.WithTimeout(context.Background(), time.Duration(s.options.RefreshInterval)*time.Second)
+			ctx, cancel = context.WithTimeout(context.Background(), duration)
 			_, err := s.etcdClient.KeepAliveOnce(ctx, lease.ID)
 			if err != nil {
 				c(cancel)
@@ -89,6 +88,7 @@ func (s *service) refresh(lease *clientv3.LeaseGrantResponse, done <-chan bool) 
 		}
 	}
 }
+
 func (s *service) ContainsKey(key string) (bool, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(s.options.RefreshInterval)*time.Second)
 	defer c(cancel)
