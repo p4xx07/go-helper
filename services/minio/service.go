@@ -3,6 +3,7 @@ package minio
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"github.com/Paxx-RnD/go-helper/concurrent"
 	miniogo "github.com/minio/minio-go"
 	"net/url"
@@ -88,7 +89,8 @@ func (s *service) GetS3Client(credentials Credentials) (*miniogo.Client, error) 
 		return nil, err
 	}
 
-	if s3Client, ok = s.clientMap.Get(credentials.Host); !ok {
+	key := fmt.Sprintf("%s_%s_%s_%s", credentials.Host, credentials.Bucket, credentials.AccessKey, credentials.SecretKey)
+	if s3Client, ok = s.clientMap.Get(key); !ok {
 		newClient, err := miniogo.New(url.Hostname(), credentials.AccessKey, credentials.SecretKey, false)
 		if err != nil {
 			return nil, err
